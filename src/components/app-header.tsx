@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { logout } from "@/app/actions";
-import { canManageUsers, ROLE_LABELS } from "@/lib/auth/roles";
+import { canManageFleet, canManageUsers, ROLE_LABELS } from "@/lib/auth/roles";
 import type { Profile } from "@/lib/auth/profile";
 
 // Kopfzeile aller App-Seiten. Menüpunkte richten sich nach der Rolle -
@@ -8,6 +8,7 @@ import type { Profile } from "@/lib/auth/profile";
 export function AppHeader({ profile }: { profile: Profile }) {
   const links = [
     { href: "/", label: "Übersicht" },
+    ...(canManageFleet(profile.role) ? [{ href: "/fahrzeuge", label: "Fahrzeuge" }] : []),
     ...(canManageUsers(profile.role)
       ? [{ href: "/admin/benutzer", label: "Benutzer" }]
       : []),
