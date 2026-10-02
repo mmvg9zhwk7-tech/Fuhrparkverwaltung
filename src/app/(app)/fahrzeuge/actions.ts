@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/profile";
-import { vehicleFromForm } from "@/lib/vehicles/parse";
+import { parseDate, parseInteger, vehicleFromForm } from "@/lib/vehicles/parse";
 import { buildImport } from "@/lib/vehicles/import";
 
 const FLEET_ROLES = ["admin", "fuhrparkleiter"] as const;
@@ -108,4 +108,33 @@ export async function importVehicles(formData: FormData) {
     "message",
     `Import fertig: ${inserts.length} neu, ${updates.length} aktualisiert.`,
   );
+}
+
+// Fahrer:in/Pool und eigene Aussteuerungsgrenzen eines Fahrzeugs.
+export async function saveAssignment(id: string, formData: FormData) {
+  await requireRole(...FLEET_ROLES);
+  const path = `/fahrzeuge/${id}`;
+  const fahrerId = String(formData.get("fahrer_id") ?? "") || null;
+  const abKmRaw = String(formData.get("aussteuern_ab_km") ?? "").trim();
+  const abKm = abKmRaw ? parseInteger(abKmRaw) : null;
+  const abDatumRaw = String(formData.get("aussteuern_ab_datum") ?? "").trim();
+  const abDatum = abDatumRaw ? parseDate(abDatumRaw) : null;
+  if ((abKmRaw && abKm === null) || (abDatumRaw && abDatum === null)) {
+    withParam(path, "error", "Bitte km-Grenze und Datum prüfen.");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("vehicles")
+    .update({
+      fahrer_id: fahrerId,
+      ist_pool: formData.get("ist_pool") === "on",
+      aussteuern_ab_km: abKm,
+      aussteuern_ab_datum: abDatum,
+    })
+    .eq("id", id);
+  if (error) withParam(path, "error", "Speichern fehlgeschlagen.");
+
+  revalidatePath("/", "layout");
+  withParam(path, "message", "Zuordnung gespeichert.");
 }

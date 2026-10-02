@@ -23,6 +23,7 @@ export const VEHICLE_FIELDS: VehicleField[] = [
   { key: "typ", label: "Typ", type: "text", group: "fahrzeug", aliases: ["Modell"] },
   { key: "kennzeichen", label: "Kennzeichen", type: "text", group: "fahrzeug" },
   { key: "fin", label: "Fahrgestellnummer (FIN)", type: "text", group: "fahrzeug", aliases: ["Fahrgestellnummer", "FIN"] },
+  { key: "erstzulassung", label: "Erstzulassung", type: "date", group: "fahrzeug", aliases: ["EZ"] },
   {
     key: "art",
     label: "Art",
@@ -63,8 +64,11 @@ export const FIELD_GROUPS: { key: VehicleField["group"]; label: string }[] = [
   { key: "status", label: "Status & Bestand" },
 ];
 
-export type VehicleValue = string | number | null;
+export type VehicleValue = string | number | boolean | null;
 export type VehicleInput = Record<string, VehicleValue>;
 export type Vehicle = VehicleInput & { id: string; fin_kurz: string | null };
 
-export const VEHICLE_COLUMNS = ["id", "fin_kurz", ...VEHICLE_FIELDS.map((f) => f.key)].join(", ");
+// Felder außerhalb der Excel-Liste (Zuordnung, eigene Grenzen).
+export const EXTRA_COLUMNS = ["fahrer_id", "ist_pool", "aussteuern_ab_km", "aussteuern_ab_datum"];
+
+export const VEHICLE_COLUMNS = ["id", "fin_kurz", ...VEHICLE_FIELDS.map((f) => f.key), ...EXTRA_COLUMNS].join(", ");

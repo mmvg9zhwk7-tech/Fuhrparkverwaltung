@@ -4,13 +4,23 @@ import { canManageFleet, canManageUsers, ROLE_LABELS } from "@/lib/auth/roles";
 import type { Profile } from "@/lib/auth/profile";
 
 // Kopfzeile aller App-Seiten. Menüpunkte richten sich nach der Rolle -
-// neue Bereiche (Fahrzeuge, Fahrtenbuch, ...) hier ergänzen.
+// neue Bereiche hier ergänzen.
 export function AppHeader({ profile }: { profile: Profile }) {
+  const fleet = canManageFleet(profile.role);
   const links = [
     { href: "/", label: "Übersicht" },
-    ...(canManageFleet(profile.role) ? [{ href: "/fahrzeuge", label: "Fahrzeuge" }] : []),
+    ...(fleet
+      ? [
+          { href: "/fahrzeuge", label: "Fahrzeuge" },
+          { href: "/km", label: "KM-Meldungen" },
+          { href: "/aussteuerung", label: "Aussteuerung" },
+        ]
+      : [{ href: "/km-melden", label: "KM melden" }]),
     ...(canManageUsers(profile.role)
-      ? [{ href: "/admin/benutzer", label: "Benutzer" }]
+      ? [
+          { href: "/admin/benutzer", label: "Benutzer" },
+          { href: "/admin/einstellungen", label: "Einstellungen" },
+        ]
       : []),
     { href: "/konto", label: "Konto" },
   ];
