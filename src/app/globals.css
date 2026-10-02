@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  /* Immer hell: Die App hat (noch) keinen Dunkelmodus. */
+  --background: #f2f4f7;
+  --foreground: #101828;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Fuhrpark: Dunkelblau (Haupt) + Grün (Akzent, "fahrbereit") */
+  --color-brand: #12324f;
+  --color-brand-dark: #0b2136;
+  --color-accent: #1f9d6b;
+  --color-accent-dark: #177a53;
+  --color-muted: #52607a;
+  --color-border: rgba(16, 24, 40, 0.12);
+}
+
+html,
+body {
+  background: var(--background);
+}
+
+body {
+  color: var(--foreground);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Helvetica,
+    Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Schutz gegen seitliches Überlaufen am Handy (siehe AGENTS.md). */
+@layer base {
+  body {
+    overflow-wrap: anywhere;
+  }
+  h1,
+  h2,
+  h3 {
+    hyphens: auto;
+  }
+  .grid > * {
+    min-width: 0;
+  }
+  select {
+    max-width: 100%;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-border bg-white p-5 shadow-sm sm:p-6;
+  }
+  .input-field {
+    @apply w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-base text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-brand transition hover:bg-black/5;
+  }
+  .label {
+    @apply flex flex-col gap-1.5 text-sm font-medium text-brand;
+  }
+  .alert-error {
+    @apply rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700;
+  }
+  .alert-success {
+    @apply rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700;
+  }
+}
