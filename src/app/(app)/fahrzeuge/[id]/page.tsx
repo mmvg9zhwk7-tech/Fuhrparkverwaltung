@@ -15,6 +15,7 @@ import { deleteVehicle, updateVehicle } from "../actions";
 import { VehicleForm } from "../vehicle-form";
 import { AssignmentCard } from "./assignment-card";
 import { AussteuerungCard } from "./aussteuerung-card";
+import { DokumenteCard } from "./dokumente-card";
 import { FristenCard, type ErledigungRow } from "./fristen-card";
 import { MileageHistory, type MileageRow } from "./mileage-history";
 
@@ -92,6 +93,8 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
           <p className="card text-sm text-muted">Keine Schäden gemeldet.</p>
         )}
       </section>
+
+      <DokumenteCard vehicleId={id} />
 
       <h2 className="mt-2 text-xl font-bold tracking-tight text-brand">Stammdaten</h2>
       <VehicleForm action={updateVehicle.bind(null, id)} vehicle={vehicle} submitLabel="Stammdaten speichern" />
