@@ -11,9 +11,10 @@ import { FristenList } from "./fristen-list";
 // Übersicht für Fuhrparkleitung/Admin: Kennzahlen und was zu tun ist.
 export async function FleetSection({ settings }: { settings: Settings }) {
   const supabase = await createClient();
-  const [fleet, fuehrerscheine] = await Promise.all([
+  const [fleet, fuehrerscheine, { count: offeneSchaeden }] = await Promise.all([
     loadFleet(supabase, settings),
     loadFuehrerscheine(supabase, settings),
+    supabase.from("schaeden").select("id", { count: "exact", head: true }).neq("status", "erledigt"),
   ]);
 
   const ueberfaellig = fleet.filter((v) => v.km === "ueberfaellig");
@@ -23,25 +24,28 @@ export async function FleetSection({ settings }: { settings: Settings }) {
   const ohneDaten = fleet.filter((v) => v.aussteuerung.ampel === "unbekannt");
   const fristen = fleet.flatMap((v) => v.fristen);
 
-  const stats = [
+  const stats: { label: string; value: number; href: string; hint?: string }[] = [
     { label: "Fahrzeuge im Bestand", value: fleet.length, href: "/fahrzeuge?status=Bestand" },
+    { label: "Offene Schäden", value: offeneSchaeden ?? 0, href: "/schaeden" },
     { label: "KM-Meldung überfällig", value: ueberfaellig.length, href: "/km?filter=ueberfaellig" },
     {
       label: "Fristen überfällig",
       value: fristen.filter((f) => f.status === "ueberfaellig").length,
-      href: "/fristen?filter=ueberfaellig",
-    },
-    {
-      label: `Fristen in ${settings.fristen_vorlauf_tage} Tagen`,
-      value: fristen.filter((f) => f.status === "bald").length,
-      href: "/fristen?filter=bald",
+      hint: `${fristen.filter((f) => f.status === "bald").length} in ${settings.fristen_vorlauf_tage} Tagen`,
+      href: "/fristen",
     },
     {
       label: "Führerscheinkontrolle fällig",
       value: fuehrerscheine.filter((p) => p.lage.status === "ueberfaellig").length,
+      hint: `${fuehrerscheine.filter((p) => p.lage.status === "bald").length} bald`,
       href: "/fuehrerscheine",
     },
-    { label: "Jetzt aussteuern", value: fleet.filter((v) => v.aussteuerung.ampel === "jetzt").length, href: "/aussteuerung" },
+    {
+      label: "Jetzt aussteuern",
+      value: fleet.filter((v) => v.aussteuerung.ampel === "jetzt").length,
+      hint: `${fleet.filter((v) => v.aussteuerung.ampel === "bald").length} bald`,
+      href: "/aussteuerung",
+    },
   ];
 
   return (
@@ -52,6 +56,7 @@ export async function FleetSection({ settings }: { settings: Settings }) {
             <Link href={s.href} className="card block transition hover:border-brand/40">
               <p className="text-3xl font-bold text-brand">{s.value}</p>
               <p className="mt-1 text-sm text-muted">{s.label}</p>
+              {s.hint && <p className="mt-0.5 text-xs text-muted">{s.hint}</p>}
             </Link>
           </li>
         ))}

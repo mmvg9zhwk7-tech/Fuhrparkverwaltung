@@ -15,9 +15,13 @@ export function AppHeader({ profile }: { profile: Profile }) {
           { href: "/km", label: "KM-Meldungen" },
           { href: "/fristen", label: "Fristen" },
           { href: "/fuehrerscheine", label: "Führerscheine" },
+          { href: "/schaeden", label: "Schäden" },
           { href: "/aussteuerung", label: "Aussteuerung" },
         ]
-      : [{ href: "/km-melden", label: "KM melden" }]),
+      : [
+          { href: "/km-melden", label: "KM melden" },
+          { href: "/schaden-melden", label: "Schaden melden" },
+        ]),
     ...(canManageUsers(profile.role)
       ? [
           { href: "/admin/benutzer", label: "Benutzer" },

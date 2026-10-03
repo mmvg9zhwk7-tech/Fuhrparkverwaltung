@@ -8,6 +8,8 @@ import { VEHICLE_COLUMNS, type Vehicle } from "@/lib/vehicles/fields";
 import { vehicleTitle } from "@/lib/vehicles/overview";
 import type { AussteuerungInput } from "@/lib/vehicles/aussteuerung";
 import { Flash } from "@/components/flash";
+import { SchadenList } from "@/components/schaden-list";
+import { SCHADEN_COLUMNS, type Schaden } from "@/lib/schaeden/schaeden";
 import { ConfirmButton } from "@/components/confirm-button";
 import { deleteVehicle, updateVehicle } from "../actions";
 import { VehicleForm } from "../vehicle-form";
@@ -24,7 +26,7 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
   const { error, message } = (await searchParams) as { error?: string; message?: string };
 
   const supabase = await createClient();
-  const [{ data }, { data: reports }, { data: erledigt }, settings] = await Promise.all([
+  const [{ data }, { data: reports }, { data: erledigt }, { data: schaeden }, settings] = await Promise.all([
     supabase.from("vehicles").select(VEHICLE_COLUMNS).eq("id", id).maybeSingle(),
     supabase
       .from("mileage_reports")
@@ -38,6 +40,12 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
       .eq("vehicle_id", id)
       .order("erledigt_am", { ascending: false })
       .limit(12),
+    supabase
+      .from("schaeden")
+      .select(SCHADEN_COLUMNS)
+      .eq("vehicle_id", id)
+      .order("datum", { ascending: false })
+      .limit(10),
     getSettings(),
   ]);
   if (!data) notFound();
@@ -70,6 +78,20 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
       </div>
 
       <MileageHistory vehicleId={id} rows={rows} />
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-brand">Schäden</h2>
+          <Link href={`/schaden-melden?fahrzeug=${id}`} className="btn-secondary">
+            Schaden erfassen
+          </Link>
+        </div>
+        {schaeden?.length ? (
+          <SchadenList schaeden={schaeden as unknown as Schaden[]} href={(s) => `/schaeden/${s.id}`} showVehicle={false} />
+        ) : (
+          <p className="card text-sm text-muted">Keine Schäden gemeldet.</p>
+        )}
+      </section>
 
       <h2 className="mt-2 text-xl font-bold tracking-tight text-brand">Stammdaten</h2>
       <VehicleForm action={updateVehicle.bind(null, id)} vehicle={vehicle} submitLabel="Stammdaten speichern" />

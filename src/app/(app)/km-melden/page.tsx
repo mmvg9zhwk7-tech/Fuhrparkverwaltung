@@ -7,6 +7,7 @@ import { getSettings } from "@/lib/settings";
 import { todayIso } from "@/lib/dates";
 import { formatValue } from "@/lib/vehicles/format";
 import { Flash } from "@/components/flash";
+import { PhotoInput } from "@/components/photo-input";
 import { reportMileage } from "./actions";
 
 export const metadata: Metadata = { title: "KM-Stand melden" };
@@ -82,14 +83,7 @@ export default async function KmMeldenPage({ searchParams }: PageProps<"/km-meld
           </label>
           <label className="label">
             Foto vom Tacho {settings.km_foto_pflicht ? "(Pflicht)" : "(optional)"}
-            <input
-              type="file"
-              name="foto"
-              accept="image/*"
-              capture="environment"
-              required={settings.km_foto_pflicht}
-              className="text-sm"
-            />
+            <PhotoInput name="foto" capture required={settings.km_foto_pflicht} />
           </label>
           <label className="label">
             Notiz (optional)

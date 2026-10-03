@@ -63,6 +63,9 @@ export async function DriverSection({ settings, hideIfEmpty }: { settings: Setti
                 <Link href={`/km-melden?fahrzeug=${v.id}`} className="btn-primary">
                   KM-Stand melden
                 </Link>
+                <Link href={`/schaden-melden?fahrzeug=${v.id}`} className="btn-secondary">
+                  Schaden melden
+                </Link>
               </div>
             </li>
           );

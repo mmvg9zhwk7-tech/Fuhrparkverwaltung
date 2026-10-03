@@ -1,6 +1,7 @@
 import { MILEAGE_STATUS_LABELS, type MileageStatus } from "@/lib/mileage/status";
 import type { AussteuerungsAmpel } from "@/lib/vehicles/aussteuerung";
 import type { FristStatus } from "@/lib/fristen/fristen";
+import { SCHADEN_STATUS_LABELS, type SchadenStatus } from "@/lib/schaeden/schaeden";
 
 const KM_STYLES: Record<MileageStatus, string> = {
   gemeldet: "bg-green-50 text-green-800",
@@ -42,6 +43,20 @@ export function FristBadge({ status, prefix }: { status: FristStatus; prefix?: s
     <span className={`inline-block w-fit whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${style}`}>
       {prefix ? `${prefix}: ` : ""}
       {label}
+    </span>
+  );
+}
+
+const SCHADEN: Record<SchadenStatus, string> = {
+  gemeldet: "bg-red-50 text-red-700",
+  in_bearbeitung: "bg-amber-50 text-amber-800",
+  erledigt: "bg-green-50 text-green-800",
+};
+
+export function SchadenBadge({ status }: { status: SchadenStatus }) {
+  return (
+    <span className={`inline-block w-fit whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${SCHADEN[status]}`}>
+      {SCHADEN_STATUS_LABELS[status]}
     </span>
   );
 }

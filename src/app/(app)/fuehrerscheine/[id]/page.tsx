@@ -9,6 +9,7 @@ import { fuehrerscheinLage, type Kontrolle } from "@/lib/fuehrerschein/status";
 import { inputValue } from "@/lib/vehicles/format";
 import { FristBadge } from "@/components/badges";
 import { Flash } from "@/components/flash";
+import { PhotoInput } from "@/components/photo-input";
 import { addKontrolle, saveFuehrerschein } from "../actions";
 import { KontrollenList, type KontrolleRow } from "./kontrollen-list";
 
@@ -82,7 +83,7 @@ export default async function FuehrerscheinPage({ params, searchParams }: PagePr
           </fieldset>
           <label className="label">
             Foto (optional)
-            <input type="file" name="foto" accept="image/*" capture="environment" className="text-sm" />
+            <PhotoInput name="foto" capture />
           </label>
           <label className="label">
             Notiz
