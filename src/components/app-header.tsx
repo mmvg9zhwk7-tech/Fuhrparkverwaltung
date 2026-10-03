@@ -13,6 +13,7 @@ export function AppHeader({ profile }: { profile: Profile }) {
       ? [
           { href: "/fahrzeuge", label: "Fahrzeuge" },
           { href: "/km", label: "KM-Meldungen" },
+          { href: "/fristen", label: "Fristen" },
           { href: "/aussteuerung", label: "Aussteuerung" },
         ]
       : [{ href: "/km-melden", label: "KM melden" }]),
@@ -31,14 +32,15 @@ export function AppHeader({ profile }: { profile: Profile }) {
         <Link href="/" className="text-base font-bold tracking-tight text-brand">
           🚗 Fuhrpark
         </Link>
-        <nav className="flex flex-1 flex-wrap gap-x-4 gap-y-1 text-sm font-medium">
+        {/* Am Handy eigene Zeile über die volle Breite, ab sm neben dem Logo. */}
+        <nav className="order-last flex w-full flex-wrap gap-x-4 gap-y-1.5 text-sm font-medium sm:order-none sm:w-auto sm:flex-1">
           {links.map((link) => (
             <Link key={link.href} href={link.href} className="text-muted hover:text-brand">
               {link.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3 text-sm">
+        <div className="ml-auto flex items-center gap-3 text-sm sm:ml-0">
           <span className="hidden text-muted sm:inline">
             {profile.full_name ?? profile.email} · {ROLE_LABELS[profile.role]}
           </span>

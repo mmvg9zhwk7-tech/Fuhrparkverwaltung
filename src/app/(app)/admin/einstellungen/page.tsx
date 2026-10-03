@@ -53,6 +53,18 @@ export default async function EinstellungenPage({ searchParams }: PageProps<"/ad
           </label>
         </fieldset>
 
+        <fieldset className="card grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <legend className="sr-only">Fristen</legend>
+          <div className="sm:col-span-2">
+            <h2 className="text-lg font-semibold text-brand">Fristen</h2>
+            <p className="mt-1 text-sm text-muted">HU, UVV-Prüfung und Inspektion.</p>
+          </div>
+          <label className="label">
+            Vorwarnung (Tage)
+            <input name="fristen_vorlauf_tage" type="number" min={0} max={365} defaultValue={s.fristen_vorlauf_tage} className="input-field" />
+          </label>
+        </fieldset>
+
         <button type="submit" className="btn-primary self-start">
           Speichern
         </button>

@@ -18,6 +18,7 @@ export async function saveSettings(formData: FormData) {
     aussteuern_max_km: num("aussteuern_max_km"),
     aussteuern_max_alter_monate: num("aussteuern_max_alter_monate"),
     aussteuern_vorlauf_monate: num("aussteuern_vorlauf_monate"),
+    fristen_vorlauf_tage: num("fristen_vorlauf_tage"),
     updated_at: new Date().toISOString(),
   };
   const invalid =
@@ -26,8 +27,11 @@ export async function saveSettings(formData: FormData) {
     values.km_faellig_tag > 28 ||
     !values.aussteuern_max_km ||
     !values.aussteuern_max_alter_monate ||
-    values.aussteuern_vorlauf_monate === null;
-  if (invalid) redirect(`${PAGE}?error=${encodeURIComponent("Bitte alle Werte prüfen (Fälligkeitstag 1–28).")}`);
+    values.aussteuern_vorlauf_monate === null ||
+    values.fristen_vorlauf_tage === null ||
+    values.fristen_vorlauf_tage < 0 ||
+    values.fristen_vorlauf_tage > 365;
+  if (invalid) redirect(`${PAGE}?error=${encodeURIComponent("Bitte alle Werte prüfen (Fälligkeitstag 1–28, Vorwarnung 0–365 Tage).")}`);
 
   const supabase = await createClient();
   const { error } = await supabase.from("settings").update(values).eq("id", 1);

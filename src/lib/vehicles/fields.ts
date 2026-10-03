@@ -13,7 +13,7 @@ export type VehicleField = {
   aliases?: string[];
   // Vorschläge im Formular (frei überschreibbar).
   suggestions?: string[];
-  group: "fahrzeug" | "zuordnung" | "finanzen" | "status";
+  group: "fahrzeug" | "zuordnung" | "finanzen" | "status" | "fristen";
 };
 
 export const VEHICLE_FIELDS: VehicleField[] = [
@@ -55,6 +55,16 @@ export const VEHICLE_FIELDS: VehicleField[] = [
   { key: "km_stand_datum", label: "KM-Stand vom", type: "date", group: "status" },
   { key: "bestandswert", label: "Bestandswert", type: "money", group: "status" },
   { key: "thg", label: "THG", type: "text", group: "status", aliases: ["THG-Quote"] },
+  // Spaltennamen wie FRIST_ARTEN in lib/fristen/fristen.ts.
+  { key: "hu_faellig", label: "HU fällig", type: "date", group: "fristen", aliases: ["HU", "TÜV", "nächste HU", "TÜV fällig"] },
+  { key: "uvv_faellig", label: "UVV fällig", type: "date", group: "fristen", aliases: ["UVV", "UVV-Prüfung", "nächste UVV"] },
+  {
+    key: "inspektion_faellig",
+    label: "Inspektion fällig",
+    type: "date",
+    group: "fristen",
+    aliases: ["Inspektion", "Service", "nächste Inspektion"],
+  },
 ];
 
 export const FIELD_GROUPS: { key: VehicleField["group"]; label: string }[] = [
@@ -62,6 +72,7 @@ export const FIELD_GROUPS: { key: VehicleField["group"]; label: string }[] = [
   { key: "zuordnung", label: "Zuordnung" },
   { key: "finanzen", label: "Vertrag & Finanzen" },
   { key: "status", label: "Status & Bestand" },
+  { key: "fristen", label: "Fristen" },
 ];
 
 export type VehicleValue = string | number | boolean | null;

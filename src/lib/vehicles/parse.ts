@@ -29,6 +29,15 @@ export function parseDate(raw: string): string | null {
   const iso = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (iso) return isValidDate(+iso[1], +iso[2], +iso[3]) ? iso[0].slice(0, 10) : null;
 
+  // Nur Monat/Jahr wie auf der HU-Plakette ("03/2027") -> Monatsende.
+  const monthOnly = value.match(/^(\d{1,2})[./](\d{4})$/);
+  if (monthOnly) {
+    const month = +monthOnly[1];
+    if (month < 1 || month > 12) return null;
+    const lastDay = new Date(Date.UTC(+monthOnly[2], month, 0)).getUTCDate();
+    return `${monthOnly[2]}-${String(month).padStart(2, "0")}-${lastDay}`;
+  }
+
   const de = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})$/);
   if (!de) return null;
   const day = +de[1];

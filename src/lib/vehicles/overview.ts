@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { addDays, todayIso } from "@/lib/dates";
 import { mileageStatus, type MileageStatus } from "@/lib/mileage/status";
 import type { Settings } from "@/lib/settings";
+import { fristenOf, type FristItem } from "@/lib/fristen/fristen";
 import { berechneAussteuerung, type Aussteuerung, type KmPoint } from "./aussteuerung";
 
 export type FleetVehicle = {
@@ -21,15 +22,19 @@ export type FleetVehicle = {
   aussteuern_ab_datum: string | null;
   fahrer_id: string | null;
   ist_pool: boolean;
+  hu_faellig: string | null;
+  uvv_faellig: string | null;
+  inspektion_faellig: string | null;
   fahrer: { full_name: string | null; email: string | null } | null;
   km: MileageStatus;
   aussteuerung: Aussteuerung;
+  fristen: FristItem[];
 };
 
 const COLUMNS =
-  "id, kennzeichen, marke, typ, filiale, nutzer, status, km_stand, km_stand_datum, erstzulassung, einkaufsdatum, ende_lf, aussteuern_ab_km, aussteuern_ab_datum, fahrer_id, ist_pool, fahrer:profiles!vehicles_fahrer_id_fkey(full_name, email)";
+  "id, kennzeichen, marke, typ, filiale, nutzer, status, km_stand, km_stand_datum, erstzulassung, einkaufsdatum, ende_lf, aussteuern_ab_km, aussteuern_ab_datum, fahrer_id, ist_pool, hu_faellig, uvv_faellig, inspektion_faellig, fahrer:profiles!vehicles_fahrer_id_fkey(full_name, email)";
 
-// Alle Fahrzeuge im Bestand mit KM-Meldestatus und Aussteuerungs-Ampel.
+// Alle Fahrzeuge im Bestand mit KM-Meldestatus, Fristen und Aussteuerungs-Ampel.
 // Für Übersicht, KM-Seite und Fahrzeugliste (nur Fuhrparkleitung/Admin).
 export async function loadFleet(supabase: SupabaseClient, settings: Settings) {
   const today = todayIso();
@@ -48,11 +53,12 @@ export async function loadFleet(supabase: SupabaseClient, settings: Settings) {
     history.set(r.vehicle_id, list);
   }
 
-  return ((vehicles ?? []) as unknown as Omit<FleetVehicle, "km" | "aussteuerung">[]).map(
+  return ((vehicles ?? []) as unknown as Omit<FleetVehicle, "km" | "aussteuerung" | "fristen">[]).map(
     (v): FleetVehicle => ({
       ...v,
       km: mileageStatus(v.km_stand_datum, today, settings.km_faellig_tag),
       aussteuerung: berechneAussteuerung(v, settings, today, history.get(v.id)),
+      fristen: fristenOf(v, today, settings.fristen_vorlauf_tage),
     }),
   );
 }

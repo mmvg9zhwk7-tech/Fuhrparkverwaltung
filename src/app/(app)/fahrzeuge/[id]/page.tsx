@@ -13,6 +13,7 @@ import { deleteVehicle, updateVehicle } from "../actions";
 import { VehicleForm } from "../vehicle-form";
 import { AssignmentCard } from "./assignment-card";
 import { AussteuerungCard } from "./aussteuerung-card";
+import { FristenCard, type ErledigungRow } from "./fristen-card";
 import { MileageHistory, type MileageRow } from "./mileage-history";
 
 export const metadata: Metadata = { title: "Fahrzeug" };
@@ -23,7 +24,7 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
   const { error, message } = (await searchParams) as { error?: string; message?: string };
 
   const supabase = await createClient();
-  const [{ data }, { data: reports }, settings] = await Promise.all([
+  const [{ data }, { data: reports }, { data: erledigt }, settings] = await Promise.all([
     supabase.from("vehicles").select(VEHICLE_COLUMNS).eq("id", id).maybeSingle(),
     supabase
       .from("mileage_reports")
@@ -31,6 +32,12 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
       .eq("vehicle_id", id)
       .order("gemeldet_am", { ascending: false })
       .limit(24),
+    supabase
+      .from("frist_erledigungen")
+      .select("id, art, erledigt_am, naechste_faellig, notiz, person:profiles!frist_erledigungen_created_by_fkey(full_name, email)")
+      .eq("vehicle_id", id)
+      .order("erledigt_am", { ascending: false })
+      .limit(12),
     getSettings(),
   ]);
   if (!data) notFound();
@@ -53,6 +60,11 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
           vehicle={vehicle as unknown as AussteuerungInput}
           history={rows.map((r) => ({ km: r.km, datum: r.gemeldet_am }))}
           settings={settings}
+        />
+        <FristenCard
+          vehicle={vehicle}
+          settings={settings}
+          erledigungen={(erledigt ?? []) as unknown as ErledigungRow[]}
         />
         <AssignmentCard vehicle={vehicle} />
       </div>

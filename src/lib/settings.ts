@@ -7,6 +7,7 @@ export type Settings = {
   aussteuern_max_km: number;
   aussteuern_max_alter_monate: number;
   aussteuern_vorlauf_monate: number;
+  fristen_vorlauf_tage: number;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -15,6 +16,7 @@ export const DEFAULT_SETTINGS: Settings = {
   aussteuern_max_km: 150000,
   aussteuern_max_alter_monate: 60,
   aussteuern_vorlauf_monate: 3,
+  fristen_vorlauf_tage: 30,
 };
 
 export const getSettings = cache(async (): Promise<Settings> => {

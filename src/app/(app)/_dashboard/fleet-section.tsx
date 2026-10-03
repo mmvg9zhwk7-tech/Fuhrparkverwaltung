@@ -5,6 +5,7 @@ import { formatValue } from "@/lib/vehicles/format";
 import { GRUND_LABELS } from "@/lib/vehicles/aussteuerung";
 import { loadFleet, vehicleTitle } from "@/lib/vehicles/overview";
 import { AmpelBadge } from "@/components/badges";
+import { FristenList } from "./fristen-list";
 
 // Übersicht für Fuhrparkleitung/Admin: Kennzahlen und was zu tun ist.
 export async function FleetSection({ settings }: { settings: Settings }) {
@@ -16,17 +17,28 @@ export async function FleetSection({ settings }: { settings: Settings }) {
     .filter((v) => v.aussteuerung.ampel === "jetzt" || v.aussteuerung.ampel === "bald")
     .sort((a, b) => (a.aussteuerung.datum ?? "").localeCompare(b.aussteuerung.datum ?? ""));
   const ohneDaten = fleet.filter((v) => v.aussteuerung.ampel === "unbekannt");
+  const fristen = fleet.flatMap((v) => v.fristen);
 
   const stats = [
     { label: "Fahrzeuge im Bestand", value: fleet.length, href: "/fahrzeuge?status=Bestand" },
     { label: "KM-Meldung überfällig", value: ueberfaellig.length, href: "/km?filter=ueberfaellig" },
+    {
+      label: "Fristen überfällig",
+      value: fristen.filter((f) => f.status === "ueberfaellig").length,
+      href: "/fristen?filter=ueberfaellig",
+    },
+    {
+      label: `Fristen in ${settings.fristen_vorlauf_tage} Tagen`,
+      value: fristen.filter((f) => f.status === "bald").length,
+      href: "/fristen?filter=bald",
+    },
     { label: "Jetzt aussteuern", value: fleet.filter((v) => v.aussteuerung.ampel === "jetzt").length, href: "/aussteuerung" },
     { label: "Bald aussteuern", value: fleet.filter((v) => v.aussteuerung.ampel === "bald").length, href: "/aussteuerung" },
   ];
 
   return (
     <div className="flex flex-col gap-6">
-      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         {stats.map((s) => (
           <li key={s.label}>
             <Link href={s.href} className="card block transition hover:border-brand/40">
@@ -36,6 +48,8 @@ export async function FleetSection({ settings }: { settings: Settings }) {
           </li>
         ))}
       </ul>
+
+      <FristenList fleet={fleet} vorlaufTage={settings.fristen_vorlauf_tage} />
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">

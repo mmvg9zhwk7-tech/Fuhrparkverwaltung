@@ -1,5 +1,6 @@
 import { MILEAGE_STATUS_LABELS, type MileageStatus } from "@/lib/mileage/status";
 import type { AussteuerungsAmpel } from "@/lib/vehicles/aussteuerung";
+import type { FristStatus } from "@/lib/fristen/fristen";
 
 const KM_STYLES: Record<MileageStatus, string> = {
   gemeldet: "bg-green-50 text-green-800",
@@ -9,7 +10,7 @@ const KM_STYLES: Record<MileageStatus, string> = {
 
 export function KmBadge({ status }: { status: MileageStatus }) {
   return (
-    <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${KM_STYLES[status]}`}>
+    <span className={`inline-block w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${KM_STYLES[status]}`}>
       KM: {MILEAGE_STATUS_LABELS[status]}
     </span>
   );
@@ -24,5 +25,23 @@ const AMPEL: Record<AussteuerungsAmpel, { label: string; style: string }> = {
 
 export function AmpelBadge({ ampel }: { ampel: AussteuerungsAmpel }) {
   const { label, style } = AMPEL[ampel];
-  return <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${style}`}>{label}</span>;
+  return <span className={`inline-block w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${style}`}>{label}</span>;
+}
+
+const FRIST: Record<FristStatus, { label: string; style: string }> = {
+  ueberfaellig: { label: "Überfällig", style: "bg-red-50 text-red-700" },
+  bald: { label: "Bald fällig", style: "bg-amber-50 text-amber-800" },
+  ok: { label: "OK", style: "bg-green-50 text-green-800" },
+  fehlt: { label: "Kein Datum", style: "bg-black/5 text-muted" },
+};
+
+// Ampel für Fristen und Führerscheinkontrolle.
+export function FristBadge({ status, prefix }: { status: FristStatus; prefix?: string }) {
+  const { label, style } = FRIST[status];
+  return (
+    <span className={`inline-block w-fit whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${style}`}>
+      {prefix ? `${prefix}: ` : ""}
+      {label}
+    </span>
+  );
 }
