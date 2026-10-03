@@ -32,7 +32,7 @@ export function AppHeader({ profile }: { profile: Profile }) {
   ];
 
   return (
-    <header className="border-b border-border bg-white">
+    <header className="border-b border-border bg-white print:hidden">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
         <Link href="/" className="text-base font-bold tracking-tight text-brand">
           🚗 Fuhrpark

@@ -16,6 +16,7 @@ import { VehicleForm } from "../vehicle-form";
 import { AssignmentCard } from "./assignment-card";
 import { AussteuerungCard } from "./aussteuerung-card";
 import { DokumenteCard } from "./dokumente-card";
+import { UebergabenCard } from "./uebergaben-card";
 import { FristenCard, type ErledigungRow } from "./fristen-card";
 import { MileageHistory, type MileageRow } from "./mileage-history";
 
@@ -94,7 +95,10 @@ export default async function FahrzeugPage({ params, searchParams }: PageProps<"
         )}
       </section>
 
-      <DokumenteCard vehicleId={id} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <UebergabenCard vehicleId={id} />
+        <DokumenteCard vehicleId={id} />
+      </div>
 
       <h2 className="mt-2 text-xl font-bold tracking-tight text-brand">Stammdaten</h2>
       <VehicleForm action={updateVehicle.bind(null, id)} vehicle={vehicle} submitLabel="Stammdaten speichern" />

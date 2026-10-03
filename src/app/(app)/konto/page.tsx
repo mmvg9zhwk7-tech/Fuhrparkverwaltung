@@ -18,7 +18,16 @@ export default async function KontoPage({
 }) {
   const { message } = await searchParams;
   const profile = await requireProfile();
-  const fs = await loadMeinFuehrerschein(await createClient(), profile.id, await getSettings());
+  const supabase = await createClient();
+  const [fs, { data: protokolle }] = await Promise.all([
+    loadMeinFuehrerschein(supabase, profile.id, await getSettings()),
+    supabase
+      .from("uebergaben")
+      .select("id, art, datum, km")
+      .eq("person_id", profile.id)
+      .order("datum", { ascending: false })
+      .limit(10),
+  ]);
   // Ohne Führerscheindaten und Kontrollen (z.B. Büro ohne Fahrzeug) kein Abschnitt.
   const zeigeFs = profile.role === "fahrer" || fs.letzte || fs.klassen;
 
@@ -54,6 +63,21 @@ export default async function KontoPage({
             )}
           </dl>
           <p className="text-muted">Die Kontrolle trägt die Fuhrparkleitung ein, wenn du deinen Führerschein vorzeigst.</p>
+        </section>
+      )}
+      {(protokolle?.length ?? 0) > 0 && (
+        <section className="card flex flex-col gap-2 text-sm">
+          <h2 className="text-lg font-semibold text-brand">Meine Übergabeprotokolle</h2>
+          <ul className="divide-y divide-border">
+            {protokolle!.map((u) => (
+              <li key={u.id}>
+                <Link href={`/uebergaben/${u.id}`} className="flex justify-between gap-3 py-2 hover:text-brand">
+                  <span>{u.art === "ausgabe" ? "Ausgabe" : "Rückgabe"}</span>
+                  <span className="text-muted">{formatValue("date", u.datum)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
       <Link href="/update-password" className="btn-secondary self-start">

@@ -30,6 +30,9 @@ Neue Funktionen bringen eine SQL-Datei mit. Im **SQL Editor** in dieser Reihenfo
 4. `supabase/add_fristen.sql` – HU, UVV-Prüfung, Inspektion
 5. `supabase/add_fuehrerscheine.sql` – Führerscheinkontrolle
 6. `supabase/add_erinnerungen.sql` – E-Mail-Erinnerungen
+7. `supabase/add_schaeden.sql` – Schadensmeldungen
+8. `supabase/add_dokumente.sql` – Dokumente je Fahrzeug
+9. `supabase/add_uebergaben.sql` – Übergabeprotokolle
 
 ## E-Mail-Erinnerungen einrichten (optional)
 
