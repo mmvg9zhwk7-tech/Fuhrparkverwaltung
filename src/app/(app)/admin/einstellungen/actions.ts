@@ -19,6 +19,7 @@ export async function saveSettings(formData: FormData) {
     aussteuern_max_alter_monate: num("aussteuern_max_alter_monate"),
     aussteuern_vorlauf_monate: num("aussteuern_vorlauf_monate"),
     fristen_vorlauf_tage: num("fristen_vorlauf_tage"),
+    fs_kontrolle_intervall_monate: num("fs_kontrolle_intervall_monate"),
     updated_at: new Date().toISOString(),
   };
   const invalid =
@@ -30,8 +31,11 @@ export async function saveSettings(formData: FormData) {
     values.aussteuern_vorlauf_monate === null ||
     values.fristen_vorlauf_tage === null ||
     values.fristen_vorlauf_tage < 0 ||
-    values.fristen_vorlauf_tage > 365;
-  if (invalid) redirect(`${PAGE}?error=${encodeURIComponent("Bitte alle Werte prüfen (Fälligkeitstag 1–28, Vorwarnung 0–365 Tage).")}`);
+    values.fristen_vorlauf_tage > 365 ||
+    values.fs_kontrolle_intervall_monate === null ||
+    values.fs_kontrolle_intervall_monate < 1 ||
+    values.fs_kontrolle_intervall_monate > 24;
+  if (invalid) redirect(`${PAGE}?error=${encodeURIComponent("Bitte alle Werte prüfen (Fälligkeitstag 1–28, Vorwarnung 0–365 Tage, Kontrolle alle 1–24 Monate).")}`);
 
   const supabase = await createClient();
   const { error } = await supabase.from("settings").update(values).eq("id", 1);

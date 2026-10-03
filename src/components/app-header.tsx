@@ -14,6 +14,7 @@ export function AppHeader({ profile }: { profile: Profile }) {
           { href: "/fahrzeuge", label: "Fahrzeuge" },
           { href: "/km", label: "KM-Meldungen" },
           { href: "/fristen", label: "Fristen" },
+          { href: "/fuehrerscheine", label: "Führerscheine" },
           { href: "/aussteuerung", label: "Aussteuerung" },
         ]
       : [{ href: "/km-melden", label: "KM melden" }]),

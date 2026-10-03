@@ -9,7 +9,7 @@ const MAX_BYTES = 9 * 1024 * 1024;
 export async function uploadPhoto(
   supabase: SupabaseClient,
   userId: string,
-  area: "km" | "schaden",
+  area: "km" | "schaden" | "fuehrerschein",
   file: File,
 ): Promise<{ path: string } | { error: string }> {
   if (!file.type.startsWith("image/")) return { error: "Bitte ein Foto auswählen." };

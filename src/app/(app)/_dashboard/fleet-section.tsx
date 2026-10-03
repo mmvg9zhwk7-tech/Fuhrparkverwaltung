@@ -4,13 +4,17 @@ import type { Settings } from "@/lib/settings";
 import { formatValue } from "@/lib/vehicles/format";
 import { GRUND_LABELS } from "@/lib/vehicles/aussteuerung";
 import { loadFleet, vehicleTitle } from "@/lib/vehicles/overview";
+import { loadFuehrerscheine } from "@/lib/fuehrerschein/overview";
 import { AmpelBadge } from "@/components/badges";
 import { FristenList } from "./fristen-list";
 
 // Übersicht für Fuhrparkleitung/Admin: Kennzahlen und was zu tun ist.
 export async function FleetSection({ settings }: { settings: Settings }) {
   const supabase = await createClient();
-  const fleet = await loadFleet(supabase, settings);
+  const [fleet, fuehrerscheine] = await Promise.all([
+    loadFleet(supabase, settings),
+    loadFuehrerscheine(supabase, settings),
+  ]);
 
   const ueberfaellig = fleet.filter((v) => v.km === "ueberfaellig");
   const aussteuern = fleet
@@ -32,8 +36,12 @@ export async function FleetSection({ settings }: { settings: Settings }) {
       value: fristen.filter((f) => f.status === "bald").length,
       href: "/fristen?filter=bald",
     },
+    {
+      label: "Führerscheinkontrolle fällig",
+      value: fuehrerscheine.filter((p) => p.lage.status === "ueberfaellig").length,
+      href: "/fuehrerscheine",
+    },
     { label: "Jetzt aussteuern", value: fleet.filter((v) => v.aussteuerung.ampel === "jetzt").length, href: "/aussteuerung" },
-    { label: "Bald aussteuern", value: fleet.filter((v) => v.aussteuerung.ampel === "bald").length, href: "/aussteuerung" },
   ];
 
   return (

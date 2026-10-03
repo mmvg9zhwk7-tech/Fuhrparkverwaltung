@@ -4,6 +4,7 @@ import { getSettings } from "@/lib/settings";
 import { Flash } from "@/components/flash";
 import { DriverSection } from "./_dashboard/driver-section";
 import { FleetSection } from "./_dashboard/fleet-section";
+import { FuehrerscheinHinweis } from "./_dashboard/fuehrerschein-hinweis";
 
 export default async function DashboardPage({ searchParams }: PageProps<"/">) {
   const { message } = (await searchParams) as { message?: string };
@@ -20,6 +21,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
         <p className="mt-1 text-sm text-muted">Angemeldet als {ROLE_LABELS[profile.role]}</p>
       </div>
       <Flash message={message} />
+      <FuehrerscheinHinweis profile={profile} settings={settings} />
       {isFleet && <FleetSection settings={settings} />}
       {/* Fuhrparkleitung sieht "Meine Fahrzeuge" nur, wenn sie selbst eins fährt. */}
       <DriverSection settings={settings} hideIfEmpty={isFleet} />
