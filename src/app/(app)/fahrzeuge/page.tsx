@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/profile";
 import { type Vehicle } from "@/lib/vehicles/fields";
 import { formatValue } from "@/lib/vehicles/format";
 import { Flash } from "@/components/flash";
+import { searchVehicles } from "@/lib/vehicles/search";
 
 export const metadata: Metadata = { title: "Fahrzeuge" };
 
@@ -18,25 +19,16 @@ export default async function FahrzeugePage({ searchParams }: PageProps<"/fahrze
   const { q, status, filiale, error, message } = (await searchParams) as Search;
 
   const supabase = await createClient();
-  let query = supabase.from("vehicles").select(LIST_COLUMNS).order("kennzeichen");
-  if (status) query = query.eq("status", status);
-  if (filiale) query = query.eq("filiale", filiale);
-  if (q) {
-    // Kommas/Klammern würden den or-Filter zerlegen.
-    const term = q.replace(/[,()]/g, " ").trim();
-    query = query.or(
-      ["kennzeichen", "marke", "typ", "fin", "vorgang", "nutzer", "kostenstelle"]
-        .map((col) => `${col}.ilike.%${term}%`)
-        .join(","),
-    );
-  }
   const [{ data }, { data: options }] = await Promise.all([
-    query,
+    searchVehicles(supabase, LIST_COLUMNS, { q, status, filiale }),
     supabase.from("vehicles").select("status, filiale"),
   ]);
   const vehicles = (data ?? []) as unknown as Vehicle[];
   const statuses = unique(options?.map((o) => o.status));
   const filialen = unique(options?.map((o) => o.filiale));
+  const exportParams = new URLSearchParams(
+    Object.entries({ q, status, filiale }).filter((e): e is [string, string] => Boolean(e[1])),
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,6 +37,10 @@ export default async function FahrzeugePage({ searchParams }: PageProps<"/fahrze
           Fahrzeuge <span className="text-muted">({vehicles.length})</span>
         </h1>
         <div className="flex flex-wrap gap-2">
+          {/* Normaler Link statt <Link>: liefert eine Datei, keine Seite. */}
+          <a href={`/fahrzeuge/export?${exportParams}`} className="btn-secondary" download>
+            Excel-Export
+          </a>
           <Link href="/fahrzeuge/import" className="btn-secondary">
             Aus Excel importieren
           </Link>
