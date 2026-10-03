@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/profile";
 import { parseInteger } from "@/lib/vehicles/parse";
+import { runReminders } from "@/lib/reminders/run";
 
 const PAGE = "/admin/einstellungen";
 
@@ -20,6 +21,7 @@ export async function saveSettings(formData: FormData) {
     aussteuern_vorlauf_monate: num("aussteuern_vorlauf_monate"),
     fristen_vorlauf_tage: num("fristen_vorlauf_tage"),
     fs_kontrolle_intervall_monate: num("fs_kontrolle_intervall_monate"),
+    erinnerungen_aktiv: formData.get("erinnerungen_aktiv") === "on",
     updated_at: new Date().toISOString(),
   };
   const invalid =
@@ -43,4 +45,17 @@ export async function saveSettings(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect(`${PAGE}?message=${encodeURIComponent("Gespeichert.")}`);
+}
+
+// Erinnerungen sofort prüfen und verschicken (sonst täglich per Cron).
+export async function sendRemindersNow() {
+  await requireRole("admin");
+  const { gesendet, fehler, hinweis } = await runReminders();
+  if (hinweis) redirect(`${PAGE}?error=${encodeURIComponent(hinweis)}#erinnerungen`);
+  const text = gesendet
+    ? `${gesendet} Erinnerung(en) verschickt.${fehler ? ` ${fehler} fehlgeschlagen.` : ""}`
+    : fehler
+      ? `${fehler} Mail(s) fehlgeschlagen.`
+      : "Nichts Neues zu verschicken.";
+  redirect(`${PAGE}?${fehler ? "error" : "message"}=${encodeURIComponent(text)}#erinnerungen`);
 }

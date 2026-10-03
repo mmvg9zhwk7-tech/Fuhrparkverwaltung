@@ -1,4 +1,5 @@
 import { cache } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 export type Settings = {
@@ -9,6 +10,7 @@ export type Settings = {
   aussteuern_vorlauf_monate: number;
   fristen_vorlauf_tage: number;
   fs_kontrolle_intervall_monate: number;
+  erinnerungen_aktiv: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -19,14 +21,17 @@ export const DEFAULT_SETTINGS: Settings = {
   aussteuern_vorlauf_monate: 3,
   fristen_vorlauf_tage: 30,
   fs_kontrolle_intervall_monate: 6,
+  erinnerungen_aktiv: true,
 };
 
-export const getSettings = cache(async (): Promise<Settings> => {
-  const supabase = await createClient();
+// Mit beliebigem Client lesbar (auch Service-Client im Cron-Job).
+export async function readSettings(supabase: SupabaseClient): Promise<Settings> {
   const { data } = await supabase
     .from("settings")
     .select(Object.keys(DEFAULT_SETTINGS).join(", "))
     .eq("id", 1)
     .maybeSingle();
   return { ...DEFAULT_SETTINGS, ...((data as Partial<Settings> | null) ?? {}) };
-});
+}
+
+export const getSettings = cache(async (): Promise<Settings> => readSettings(await createClient()));

@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { sanitizeNextPath } from "@/lib/auth/next-path";
 
 // Alles andere ist nur mit Login erreichbar - die App ist rein intern.
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth"];
+// /api/cron prüft selbst das CRON_SECRET.
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth", "/api/cron"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

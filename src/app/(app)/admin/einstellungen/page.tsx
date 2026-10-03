@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { requireRole } from "@/lib/auth/profile";
 import { getSettings } from "@/lib/settings";
 import { Flash } from "@/components/flash";
-import { saveSettings } from "./actions";
+import { mailConfigured } from "@/lib/mail/send";
+import { saveSettings, sendRemindersNow } from "./actions";
 
 export const metadata: Metadata = { title: "Einstellungen" };
 
@@ -10,6 +11,7 @@ export default async function EinstellungenPage({ searchParams }: PageProps<"/ad
   await requireRole("admin");
   const { error, message } = (await searchParams) as { error?: string; message?: string };
   const s = await getSettings();
+  const configured = mailConfigured();
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
@@ -71,10 +73,38 @@ export default async function EinstellungenPage({ searchParams }: PageProps<"/ad
           </label>
         </fieldset>
 
+        <fieldset id="erinnerungen" className="card flex flex-col gap-3">
+          <legend className="sr-only">E-Mail-Erinnerungen</legend>
+          <h2 className="text-lg font-semibold text-brand">E-Mail-Erinnerungen</h2>
+          <p className="text-sm text-muted">
+            Einmal täglich frühmorgens (6–7 Uhr): Fuhrparkleitung und Admins bekommen eine Sammel-Mail zu neu fälligen
+            Fristen, Führerscheinkontrollen und überfälligen KM-Meldungen. Fahrer:innen werden 3 Tage vor dem
+            Meldetag an den KM-Stand und an ihre Führerscheinkontrolle erinnert. Jede Erinnerung kommt nur einmal.
+          </p>
+          <label className="flex items-center gap-2 text-sm font-medium text-brand">
+            <input type="checkbox" name="erinnerungen_aktiv" defaultChecked={s.erinnerungen_aktiv} />
+            Erinnerungen verschicken
+          </label>
+          <p className={`text-sm ${configured ? "text-green-700" : "text-amber-800"}`}>
+            {configured
+              ? "✓ E-Mail-Versand ist eingerichtet."
+              : "E-Mail-Versand ist noch nicht eingerichtet: In Vercel RESEND_API_KEY, MAIL_FROM und CRON_SECRET setzen (siehe README)."}
+          </p>
+        </fieldset>
+
         <button type="submit" className="btn-primary self-start">
           Speichern
         </button>
       </form>
+
+      {configured && (
+        <form action={sendRemindersNow} className="flex flex-col gap-2 border-t border-border pt-6">
+          <p className="text-sm text-muted">Nicht bis morgen warten (z.B. zum Testen):</p>
+          <button type="submit" className="btn-secondary self-start">
+            Erinnerungen jetzt prüfen und senden
+          </button>
+        </form>
+      )}
     </div>
   );
 }
