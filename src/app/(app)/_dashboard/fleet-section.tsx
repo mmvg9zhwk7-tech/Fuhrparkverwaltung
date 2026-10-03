@@ -35,7 +35,7 @@ export async function FleetSection({ settings }: { settings: Settings }) {
       href: "/fristen",
     },
     {
-      label: "Führerscheinkontrolle fällig",
+      label: "Führerscheine fällig",
       value: fuehrerscheine.filter((p) => p.lage.status === "ueberfaellig").length,
       hint: `${fuehrerscheine.filter((p) => p.lage.status === "bald").length} bald`,
       href: "/fuehrerscheine",
